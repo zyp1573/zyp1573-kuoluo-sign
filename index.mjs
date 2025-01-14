@@ -32,7 +32,8 @@ const url_reward = "https://api.kurobbs.com/encourage/signIn/initSignInV2";
 const url_sign = "https://api.kurobbs.com/encourage/signIn/v2";
 const url_bbs_sign = "https://api.kurobbs.com/user/signIn";
 
-const gameId = "3"; // 鸣潮写3
+const mcGameId = "3"; // 鸣潮写3
+const bbsGameId = "2"; // 库街区写2
 const serverId = "76402e5b20be2c39f095a152090afddc"; // 固定
 
 /**
@@ -111,7 +112,7 @@ function signIn(data) {
  * @description: 库街区签到请求
  */
 async function sign(user) {
-  const data = Object.assign({ gameId }, user);
+  const data = Object.assign({ gameId: bbsGameId }, user);
   const res = await signIn(data);
   if (res.code === 200) {
     console.log(`库街区签到成功，`, `连续签到${res.data.continueDays}天`);
@@ -124,7 +125,7 @@ async function sign(user) {
  * @description: 获取鸣潮签到奖励
  */
 async function getRewards(user) {
-  const data = Object.assign({ gameId, serverId }, user);
+  const data = Object.assign({ gameId: mcGameId, serverId }, user);
   const res = await initSignInV2(data);
   console.log(res);
 }
@@ -136,7 +137,7 @@ import dayjs from "dayjs";
  */
 async function signMC(user) {
   const reqMonth = dayjs().format("MM");
-  const data = Object.assign({ gameId, serverId, reqMonth }, user);
+  const data = Object.assign({ gameId: mcGameId, serverId, reqMonth }, user);
   const res = await signInV2(data);
   if (res.code === 200) {
     console.log("鸣潮签到成功");
@@ -158,3 +159,21 @@ cron.schedule("0 6 * * *", () => {
     signMC(user);
   }
 });
+
+/**
+ * @description: 检测体力情况
+ */
+
+async function checkEnergy() {
+  const res = await request({
+    method: "POST",
+    url: "https://api.kurobbs.com/gamer/widget/game3/getData",
+    data: {
+      type: 1,
+      token:
+        "",
+    },
+  });
+  const { total, cur } = res.data.energyData;
+}
+
